@@ -1,6 +1,6 @@
 ***SSM***
 ---
-[TOC]
+[toc]
 
 ---
 # 1. Spring
@@ -549,3 +549,59 @@ public class annoLog {
 </dependencies>
 ```
 
+**配置Spring配置文件 (bean.xml)**
+
+- 使用Spring数据源替代Mybatis数据源
+
+```xml
+ <!--    DataSource:使用 Spring 数据源替代 Mybatis 数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql:///db_im_swpu"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456"/>
+    </bean>
+```
+
+- 设置SqlSessionFactory 绑定Mybatis配置文件
+
+```xml
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!--  绑定Mybatis配置文件      -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <property name="mapperLocations" value="classpath:holanswide/mapper/mappers.xml"/>
+    </bean>
+```
+
+- 创建 SqlSessionFactoryBean
+
+```xml
+    <!--    建立SqlSession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <!--    只能通过构造器注入：没有 Set方法      -->
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+<!--用户自定义类，封装数据库方法，实现mapper接口-->
+    <bean id="session" class="holanswide.mapper.UserMapper">
+        <property name="sqlSession" ref="sqlSession"/>
+    </bean>
+```
+
+- 创建自定义类实现mapper接口，写入bean
+
+```java
+// 实现Mappers接口
+public class SqlSession implements Mappers {
+    private SqlSessionTemplate session;
+//必须要有Set方法
+    public void setSqlSession(SqlSessionTemplate sqlSession) {
+        this.session = sqlSession;
+    }
+//实现数据库查询举例
+    @Override
+    public List<User> SearchAll() {
+        return session.getMapper(SqlSession.class).SearchAll();
+    }
+}
+```

@@ -1,0 +1,11 @@
+holanswide\App.class
+holanswide\pojo\User.class
+holanswide\pojo\Admin.class
+holanswide\log\Log.class
+holanswide\appFunc.class
+holanswide\dao\UserDao.class
+holanswide\log\AutoLog.class
+holanswide\log\SelfLog.class
+holanswide\log\Service.class
+holanswide\log\AdminLog.class
+holanswide\dao\UserDaoImp.class
