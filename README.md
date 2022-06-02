@@ -570,7 +570,7 @@ public class annoLog {
         <property name="dataSource" ref="dataSource" />
         <!--  绑定Mybatis配置文件      -->
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
-        <property name="mapperLocations" value="classpath:holanswide/mapper/mappers.xml"/>
+        <property name="mapperLocations" value="classpath:mappers.xml"/>
     </bean>
 ```
 
@@ -605,3 +605,22 @@ public class SqlSession implements Mappers {
     }
 }
 ```
+
+## 1.5 声明性事务
+
+### 事务
+
+- 一组业务要么都成功，要么都失败
+- 确保数据的完整性和一致性
+
+**事务的ACID原则**
+
+- 原子性
+- 一致性
+- 隔离性： 防止事务同时操作同一数据
+- 持久性： 成功执行的事务将会写入存储器
+
+### Spring中的事务
+
+[Spring事务](https://blog.csdn.net/t_t2_3/article/details/114548914)
+

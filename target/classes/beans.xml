@@ -2,13 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context
        https://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/aop
-       https://www.springframework.org/schema/aop/spring-aop.xsd">
+       https://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
 <!--    Bean-->
     <bean class="holanswide.App" id="app"/>
@@ -32,6 +34,7 @@
         </aop:aspect>
 
     </aop:config>
+    <aop:aspectj-autoproxy  proxy-target-class="true"/>
 
 
     <!--开启注解支持 -->
@@ -41,7 +44,7 @@
     <!--    DataSource:使用 Spring 数据源替代 Mybatis 数据源-->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql:///db_im_swpu?useUnicode=true&amp;characterEncoding=utf8"/>
+        <property name="url" value="jdbc:mysql:///spring?useUnicode=true&amp;characterEncoding=utf8"/>
         <property name="username" value="root"/>
         <property name="password" value="123456"/>
     </bean>
@@ -55,13 +58,50 @@
     </bean>
 
 <!--    SqlSession模板-->
-    <bean id="SqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactory"/>
     </bean>
 
 <!--自建类-->
     <bean id="userMapImp" class="holanswide.mapper.UserMapImp">
-        <property name="sqlSessionTemplate" ref="SqlSessionTemplate"/>
+        <property name="sqlSessionTemplate" ref="sqlSessionTemplate"/>
      </bean>
+
+<!--配置声明式事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+<!--结合AOP实现事务自动化-->
+    <!-- 1.配置事务的类     -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+        <!-- 配置事务传播方式，
+        方式名：name
+            将按照通配符匹配方法名
+            例如 name = "add*" 将会匹配以add开头的所有方法，如 addUser addInfo 等等
+        属性：propagation：
+            Spring事务有七大传播属性
+            Propagation.REQUIRED (默认) 新事务遇到已有事务则加入事务，没有则新建事务
+            Propagation.REQUIRES_NEW 原有事务挂起，将新事物以新建事务形式先行执行
+            Propagation.NESTED 嵌套事务，外部事物的回滚会影响内部
+         -->
+            <tx:method name="add" propagation="REQUIRED"/>
+            <tx:method name="delete" propagation="REQUIRED"/>
+            <tx:method name="update" propagation="REQUIRED"/>
+            <tx:method name="query" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+            <tx:method name="addThenDel" propagation="REQUIRES_NEW"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--    配置事务切入-->
+    <aop:config>
+        <aop:pointcut id="txPointcut" expression="execution(* holanswide.mapper.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+    </aop:config>
+
+<!--开启事务注解支持-->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
 
 </beans>

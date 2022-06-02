@@ -1,5 +1,6 @@
 package holanswide.mapper;
 
+import holanswide.pojo.Info;
 import holanswide.pojo.User;
 
 import java.util.List;
@@ -11,5 +12,8 @@ import java.util.List;
  */
 
 public interface UserMap {
-    public List<User> SearchAll();
+    public List<Info> queryInfo();
+    public void addInfo(Info info);
+    public void delInfo(Info info);
+
 }

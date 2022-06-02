@@ -1,7 +1,10 @@
 package holanswide;
 
+import holanswide.annoBean.b1;
+import holanswide.annoBean.b2;
 import holanswide.mapper.UserMap;
 import holanswide.mapper.UserMapImp;
+import holanswide.pojo.Info;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -55,13 +58,14 @@ public class appFunc {
     }
 
     @Test
+//    测试 Spring x Mybatis
     public void testSpringMybatis() throws Exception {
         // 1. 指定Spring配置文件名称
         String config = "beans.xml";
         // 2. 创建容器
         ApplicationContext ac = new ClassPathXmlApplicationContext(config);
         UserMapImp udi = ac.getBean("userMapImp", UserMapImp.class);
-        System.out.println(udi.SearchAll());
+        System.out.println(udi.queryInfo());
     }
     
     @Test
@@ -73,6 +77,30 @@ public class appFunc {
         // 2.执行 sql 语句
         SqlSession sqlss = sqlSessionFactory.openSession();
         UserMap mapper = sqlss.getMapper(UserMap.class);
-        System.out.println(mapper.SearchAll());
+        System.out.println(mapper.queryInfo());
+    }
+
+    @Test
+//    sql事务测试
+    public void TranTest() {
+        // 1. 指定Spring配置文件名称
+        String config = "beans.xml";
+        // 2. 创建容器
+        ApplicationContext ac = new ClassPathXmlApplicationContext(config);
+        UserMapImp udi = ac.getBean("userMapImp", UserMapImp.class);
+        udi.addThenDel(ac.getBean("info",Info.class));
+    }
+
+    @Test
+//    config类测试
+    public void testConfigClass() {
+        // 1. 指定Spring配置文件名称
+        String config = "beans.xml";
+        // 2. 创建容器
+        ApplicationContext ac = new ClassPathXmlApplicationContext(config);
+        b1 udi = ac.getBean("getB1", b1.class);
+        System.out.println(udi.getInfo().getUsername());
+        b2 ud2 = ac.getBean("getB2", b2.class);
+        System.out.println("b2> " + ud2.getUser().toString());
     }
 }
